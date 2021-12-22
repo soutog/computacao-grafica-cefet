@@ -3,8 +3,8 @@ def setup():
 
 def draw():
     background(128)
-    p2x = mouseX #100
-    p2y = mouseY #100
+    p2x = 100
+    p2y = 100
     p1x = 100
     p1y = 300
     p3x = mouseX #700
