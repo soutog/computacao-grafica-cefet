@@ -24,11 +24,11 @@ def rosquinha():
     glRotatef(1,1,0,0)
 
     phi = phi0
-    for i in range(0,n):
+    for i in range(0,n+1):
         glBegin(GL_TRIANGLE_STRIP)
         theta = theta0
         # theta = (i*2*pi)/n
-        for j in range(0,n):
+        for j in range(0,n+1):
             # phi = (j*2*pi)/n
             x = (dx + raio*cos(theta))*cos(phi)
             y = raio*sin(theta)
