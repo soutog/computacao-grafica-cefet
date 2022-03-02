@@ -2,10 +2,7 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
 import sys
-import texturas.png as png
-import numpy as np
-from math import *
-
+import png
 
 # Some api in the chain is translating the keystrokes to this octal string
 # so instead of saying: ESCAPE = 27, we use the following.
@@ -20,17 +17,13 @@ dx = 0.1
 dy = 0
 dz = 0
 
-
-
-# texture = []
-
 def LoadTextures():
     global texture
     texture = [ glGenTextures(1) ]
 
     ################################################################################
     glBindTexture(GL_TEXTURE_2D, texture[0])
-    reader = png.Reader(filename='mapa.png')
+    reader = png.Reader(filename='textura.png')
     w, h, pixels, metadata = reader.read_flat()
     if(metadata['alpha']):
         modo = GL_RGBA
@@ -47,7 +40,6 @@ def LoadTextures():
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL)
     ################################################################################
 
-
 def InitGL(Width, Height):             
     LoadTextures()
     glEnable(GL_TEXTURE_2D)
@@ -59,7 +51,6 @@ def InitGL(Width, Height):
     glMatrixMode(GL_PROJECTION)
     gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
     glMatrixMode(GL_MODELVIEW)
-    glTranslatef(0,0,-5)
 
 def ReSizeGLScene(Width, Height):
     if Height == 0:                        
@@ -70,58 +61,8 @@ def ReSizeGLScene(Width, Height):
     gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
     glMatrixMode(GL_MODELVIEW)
 
-phi0 = 0
-phin = 2*pi
-
-theta0 = -pi/2
-thetan = pi/2
-
-n = 50
-
-dphi = (phin - phi0)/n
-dtheta = (thetan - theta0)/n
-
-
-def esfera():
-    # glDisable(GL_TEXTURE_2D)
-    glRotatef(1,1,0,0)
-    raio = 1
-
-    phi = phi0
-    for i in range(0,n+1):
-        glBegin(GL_TRIANGLE_STRIP)
-        theta = theta0
-        # theta = (i*pi/n) - pi/2
-        for j in range(0,n+1):
-            # phi = (j*2*pi)/n
-            x = raio*cos(theta)*cos(phi)
-            y = raio*sin(theta)
-            z = raio*cos(theta)*sin(phi)
-
-            x_2 = raio*cos(theta)*cos(phi+dphi)
-            y_2 = raio*sin(theta)
-            z_2 = raio*cos(theta)*sin(phi+dphi)
-
-            glTexCoord2f(i/(n-1),j/(n-1))
-            glVertex3f(x,y,z)
-            glTexCoord2f((i+1)/(n-1),j/(n-1))
-            glVertex3f(x_2,y_2,z_2)
-
-            theta += dtheta
-        glEnd()
-        phi += dphi
-    
-    # glEnable(GL_TEXTURE_2D)
-
 
 def DrawGLScene():
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    esfera()
-    glutSwapBuffers()
- 
-
-
-def DrawGLScene2():
     global xrot, yrot, zrot, texture
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)    
@@ -133,51 +74,73 @@ def DrawGLScene2():
     glRotatef(zrot,0.0,0.0,1.0) 
     
     glBindTexture(GL_TEXTURE_2D, texture[0])
-    glBegin(GL_QUADS)              
-    
-    glTexCoord2f(0.0, 0.0); glVertex3f(-1.0, -1.0,  1.0)    
-    glTexCoord2f(0.0, 1/2); glVertex3f( 1.0, -1.0,  1.0)   
-    glTexCoord2f(1/3, 1/2); glVertex3f( 1.0,  1.0,  1.0)   
-    glTexCoord2f(1/3, 0.0); glVertex3f(-1.0,  1.0,  1.0)  
+    glBegin(GL_TRIANGLES)
 
-    # Back Face
-    glTexCoord2f(1.0, 0.0); glVertex3f(-1.0, -1.0, -1.0)    
-    glTexCoord2f(1.0, 1.0); glVertex3f(-1.0,  1.0, -1.0)    
-    glTexCoord2f(0.0, 1.0); glVertex3f( 1.0,  1.0, -1.0)    
-    glTexCoord2f(0.0, 0.0); glVertex3f( 1.0, -1.0, -1.0)   
-    
-    # Top Face
-    glTexCoord2f(0.0, 1.0); glVertex3f(-1.0,  1.0, -1.0)   
-    glTexCoord2f(0.0, 0.0); glVertex3f(-1.0,  1.0,  1.0)    
-    glTexCoord2f(1.0, 0.0); glVertex3f( 1.0,  1.0,  1.0)    
-    glTexCoord2f(1.0, 1.0); glVertex3f( 1.0,  1.0, -1.0)   
+    glTexCoord2f(1.0, 0.0); glVertex3f( 0.0, 1.0, 0.0)
+    glTexCoord2f(0.0, 1.0); glVertex3f(-1.0, -1.0, 1.0)
+    glTexCoord2f(0.0, 0.0); glVertex3f(1.0, -1.0, 1.0)
 
-    # Bottom Face       
-    glTexCoord2f(1.0, 1.0); glVertex3f(-1.0, -1.0, -1.0)   
-    glTexCoord2f(0.0, 1.0); glVertex3f( 1.0, -1.0, -1.0)   
-    glTexCoord2f(0.0, 0.0); glVertex3f( 1.0, -1.0,  1.0)   
-    glTexCoord2f(1.0, 0.0); glVertex3f(-1.0, -1.0,  1.0)    
-    
-    # Right face
-    glTexCoord2f(1.0, 0.0); glVertex3f( 1.0, -1.0, -1.0)    
-    glTexCoord2f(1.0, 1.0); glVertex3f( 1.0,  1.0, -1.0)   
-    glTexCoord2f(0.0, 1.0); glVertex3f( 1.0,  1.0,  1.0)    
-    glTexCoord2f(0.0, 0.0); glVertex3f( 1.0, -1.0,  1.0)  
-    
-    # Left Face
-    glTexCoord2f(0.0, 0.0); glVertex3f(-1.0, -1.0, -1.0)  
-    glTexCoord2f(1.0, 0.0); glVertex3f(-1.0, -1.0,  1.0)    
-    glTexCoord2f(1.0, 1.0); glVertex3f(-1.0,  1.0,  1.0)   
-    glTexCoord2f(0.0, 1.0); glVertex3f(-1.0,  1.0, -1.0)   
-    
+    glTexCoord2f(1.0, 0.0); glVertex3f(0.0, 1.0, 0.0)
+    glTexCoord2f(0.0, 0.0); glVertex3f(1.0, -1.0, 1.0)
+    glTexCoord2f(0.0, 1.0); glVertex3f(1.0, -1.0, -1.0)
+
+    glTexCoord2f(1.0, 0.0); glVertex3f(0.0, 1.0, 0.0)
+    glTexCoord2f(0.0, 1.0); glVertex3f(1.0, -1.0, -1.0)
+    glTexCoord2f(0.0, 0.0); glVertex3f(-1.0, -1.0, -1.0)
+
+    glTexCoord2f(1.0, 0.0); glVertex3f( 0.0, 1.0, 0.0)
+    glTexCoord2f(0.0, 0.0); glVertex3f(-1.0,-1.0,-1.0)
+    glTexCoord2f(0.0, 1.0); glVertex3f(-1.0,-1.0, 1.0)
+
     glEnd()                # Done Drawing The Cube
     
-    xrot = xrot + 0.01                # X rotation
-    yrot = yrot + 0.01                 # Y rotation
-    zrot = zrot + 0.01                 # Z rotation
+    xrot = xrot + 1.0                 # X rotation
+    yrot = yrot + 1.0                 # Y rotation
+    zrot = zrot + 1.0                 # Z rotation
 
     glutSwapBuffers()
 
+
+
+# def piramide():
+#     global quadro
+#     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+#     glPushMatrix()
+#     # glRotatef(quadro,0.0,1.0,0.0)
+#     glRotatef(90.0+quadro,1.0,0.0,0.0)
+#     raio = 0.7
+#     n = 6
+#     glBegin(GL_TRIANGLES)
+#     for i in range(0,n): #Faces
+#         glColor3fv(cores[(i)%len(cores)])
+#         glVertex3f(0.0,0.0,-1.0)
+#         a = (i/n) * 2 * math.pi   
+#         x = raio * math.cos(a)
+#         y = raio * math.sin(a)
+#         glVertex3f(x,y,0.0)
+#         a = ((i+1)/n) * 2 * math.pi
+#         x = raio * math.cos(a)
+#         y = raio * math.sin(a)
+#         glVertex3f(x,y,0.0)
+#     glEnd()
+#     glBegin(GL_TRIANGLE_FAN)
+#     glColor3f(0.3,0.3,0.3)
+#     glVertex3f(0.0,0.0,0.0)
+#     for i in range(0,n+1):
+#         a = (i/n) * 2 * math.pi   
+#         x = raio * math.cos(a)
+#         y = raio * math.sin(a)
+#         glVertex3f(x,y,0.0)
+#     glEnd()
+#     glutSwapBuffers()
+#     quadro += 1
+#     glPopMatrix()
+
+# def DrawGLScene():
+#     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+#     piramide()
+#     glutSwapBuffers()
+ 
 
 def keyPressed(tecla, x, y):
     global dx, dy, dz
@@ -218,7 +181,7 @@ def main():
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)    
     glutInitWindowSize(640, 480)
     glutInitWindowPosition(0, 0)
-    glutCreateWindow("Textura")
+    glutCreateWindow("Piramide Textura")
     glutDisplayFunc(DrawGLScene)
     glutIdleFunc(DrawGLScene)
     glutReshapeFunc(ReSizeGLScene)
@@ -227,5 +190,36 @@ def main():
     InitGL(640, 480)
     glutMainLoop()
 
-
 main()
+
+
+
+
+
+
+
+
+
+
+
+
+# def timer(i):
+#     glutPostRedisplay()
+#     glutTimerFunc(50,timer,1)
+
+
+# # PROGRAMA PRINCIPAL
+# glutInit(sys.argv)
+# glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_MULTISAMPLE)
+# glutInitWindowSize(800,600)
+# glutCreateWindow("PIRAMIDE")
+# glutDisplayFunc(piramide)
+# glEnable(GL_MULTISAMPLE)
+# glEnable(GL_DEPTH_TEST)
+# glClearColor(0.,0.,0.,1.)
+# gluPerspective(45,800.0/600.0,0.1,100)
+# glTranslatef(0.0, 0.0,-5.0)
+# glutTimerFunc(50,timer,1)
+# glutMainLoop()
+
+
